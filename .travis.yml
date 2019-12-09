@@ -14,5 +14,5 @@ script:
   - pytest
   - coverage xml -o coverage.xml
 
-# after_success:
-#   - codecov -t 8467f17f-e0d1-429d-93f6-8336ccab8248
+after_success:
+  - codecov -t ef816643-aeda-4fa9-ad22-37709386f4cf
