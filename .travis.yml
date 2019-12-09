@@ -1,0 +1,18 @@
+language: python
+
+python:
+  - 3.7
+  - 3.6
+
+script:
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
+
+  - flake8 .
+  - black --check .
+  - pytest
+  - coverage xml -o coverage.xml
+
+after_success:
+  - codecov -t 8467f17f-e0d1-429d-93f6-8336ccab8248
