@@ -83,12 +83,7 @@ class Talk2mMocker(requests_mock.mock):
 
 
 def test_talk2m():
-    client = DataMailbox(
-        account="test",
-        username="test",
-        password="test",
-        devid="test",
-    )
+    client = DataMailbox(account="test", username="test", password="test", devid="test")
     print(client)
     with Talk2mMocker():
         assert client.getstatus()
