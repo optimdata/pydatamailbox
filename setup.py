@@ -29,7 +29,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
-    description="Python client for kibana. Provide ORM & vega rendering of visualizations",
+    description="Unoffical client for the Ewon's datamailbox web APIs",
     install_requires=requirements,
     license="MIT license",
     long_description=readme + "\n\n" + history,
