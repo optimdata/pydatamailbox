@@ -37,11 +37,11 @@ setup(
     include_package_data=True,
     keywords="pydatamailbox",
     name="pydatamailbox",
-    packages=find_packages(include=["src/pydatamailbox"]),
+    packages=find_packages(include=["pydatamailbox"]),
     setup_requires=setup_requirements,
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/optimdata/pydatamailbox",
-    version="0.1.1",
+    version="0.1.3",
     zip_safe=False,
 )

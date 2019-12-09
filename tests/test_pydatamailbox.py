@@ -8,7 +8,7 @@ import sys
 BASE_DIRECTORY = os.path.join(os.path.dirname(__file__), "..")  # NOQA
 sys.path.insert(0, BASE_DIRECTORY)  # NOQA
 
-from pydatamailbox import DataMailbox, Talk2mArgsError, Talk2mBaseException
+from pydatamailbox import DataMailbox, DataMailboxArgsError, DataMailboxBaseException
 
 
 class Talk2mMocker(requests_mock.mock):
@@ -93,7 +93,7 @@ def test_talk2m():
         assert client.syncdata()
         assert client.syncdata(last_transaction_id=1)
         assert list(client.iterate_syncdata())
-        with pytest.raises(Talk2mArgsError):
+        with pytest.raises(DataMailboxArgsError):
             client.getewon()
 
     with requests_mock.mock() as mock:
@@ -101,15 +101,15 @@ def test_talk2m():
             "https://data.talk2m.com/getewons",
             json={"success": False, "message": "error", "code": 1},
         )
-        with pytest.raises(Talk2mBaseException):
+        with pytest.raises(DataMailboxBaseException):
             client.getewons()
 
     with requests_mock.mock() as mock:
         mock.post("https://data.talk2m.com/getewons", status_code=502)
-        with pytest.raises(Talk2mBaseException):
+        with pytest.raises(DataMailboxBaseException):
             client.getewons()
 
     with requests_mock.mock() as mock:
         mock.post("https://data.talk2m.com/getewons", text="no json")
-        with pytest.raises(Talk2mBaseException):
+        with pytest.raises(DataMailboxBaseException):
             client.getewons()

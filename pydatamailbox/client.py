@@ -4,10 +4,10 @@ import json
 import requests
 
 from pydatamailbox.exceptions import (
-    Talk2mArgsError,
-    Talk2mConnectionError,
-    Talk2mResponseError,
-    Talk2mStatusError,
+    DataMailboxArgsError,
+    DataMailboxConnectionError,
+    DataMailboxResponseError,
+    DataMailboxStatusError,
 )
 
 
@@ -46,17 +46,19 @@ class DataMailbox(object):
         try:
             response = self.session.post(url=url, data=data)
         except requests.exceptions.ConnectionError as e:  # pragma: nocover
-            raise Talk2mConnectionError(str(e))  # pragma: nocover
+            raise DataMailboxConnectionError(str(e))  # pragma: nocover
         if response.status_code != 200:
-            raise Talk2mStatusError("Bad status from talk2m: %s" % response.status_code)
+            raise DataMailboxStatusError(
+                "Bad status from talk2m: %s" % response.status_code
+            )
         try:
             content = response.json()
         except json.decoder.JSONDecodeError:
-            raise Talk2mResponseError(
+            raise DataMailboxResponseError(
                 "Cannot deserialize json from %s" % response.content
             )
         if check_success and not content["success"]:
-            raise Talk2mStatusError(
+            raise DataMailboxStatusError(
                 "Got error code=%(code)s, message=%(message)s" % content
             )
         return response.json()
@@ -100,7 +102,7 @@ class DataMailbox(object):
         :param name: Name of the Ewon as returned by the “getewons” API request.
         """
         if not ewonid and not name:
-            raise Talk2mArgsError("id and name cannot be null in the same time")
+            raise DataMailboxArgsError("id and name cannot be null in the same time")
         data = {**self.data}
         if ewonid:
             data["id"] = ewonid

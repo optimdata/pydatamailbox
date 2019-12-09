@@ -1,18 +1,18 @@
-class Talk2mBaseException(BaseException):
+class DataMailboxBaseException(BaseException):
     pass
 
 
-class Talk2mConnectionError(Talk2mBaseException):
+class DataMailboxConnectionError(DataMailboxBaseException):
     pass
 
 
-class Talk2mResponseError(Talk2mBaseException):
+class DataMailboxResponseError(DataMailboxBaseException):
     pass
 
 
-class Talk2mStatusError(Talk2mBaseException):
+class DataMailboxStatusError(DataMailboxBaseException):
     pass
 
 
-class Talk2mArgsError(AttributeError):
+class DataMailboxArgsError(AttributeError):
     pass
