@@ -11,30 +11,20 @@ from pydatamailbox.exceptions import (
 )
 
 
-class DataMailbox(object):
-    """
-    Talk2M DataMailbox api client.
-
-    https://developer.ewon.biz/content/dmweb-api
-    This client only supports: getstatus, getewons, getewon, syncdata
-    """
-
-    def __init__(self, account, username, password, devid):
+class EwonClient(object):
+    def __init__(self, account, username, password):
         self.account = account
         self.username = username
         self.password = password
-        self.devid = devid
         self.data = {
             "t2maccount": account,
             "t2musername": username,
             "t2mpassword": password,
-            "t2mdevid": devid,
         }
         self.session = requests.Session()
         self.session.headers.update(
             {"Content-Type": "application/x-www-form-urlencoded"}
         )
-        self.base_url = "https://data.talk2m.com/"
 
     def __str__(self):
         return self.account
@@ -62,6 +52,20 @@ class DataMailbox(object):
                 "Got error code=%(code)s, message=%(message)s" % content
             )
         return response.json()
+
+
+class DataMailbox(EwonClient):
+    """
+    Talk2M DataMailbox api client.
+
+    https://developer.ewon.biz/content/dmweb-api
+    This client only supports: getstatus, getewons, getewon, syncdata
+    """
+
+    def __init__(self, account, username, password, devid):
+        super().__init__(account, username, password)
+        self.data["t2mdevid"] = devid
+        self.base_url = "https://data.talk2m.com/"
 
     def getstatus(self):
         """
@@ -137,3 +141,53 @@ class DataMailbox(object):
             if not ret.get("moreDataAvailable"):
                 break
             last_transaction_id = ret["transactionId"]
+
+
+class M2Web(EwonClient):
+    """
+    Talk2M M2Web api client.
+
+    https://developer.ewon.biz/content/m2web-api-0
+    This client only supports: getaccountinfo, getewons, getewon
+    """
+
+    def __init__(self, account, username, password, devid):
+        super().__init__(account, username, password)
+        self.data["t2mdeveloperid"] = devid
+        self.base_url = "https://m2web.talk2m.com/t2mapi/"
+
+    def getaccountinfo(self):
+        """
+        Retrieves the basic account information (reference, name, company).
+
+        It also retrieves the set of pools visible by user : pairs name/id as well as the name of each custom attribute.
+        There are always 3 custom attributes listed. Some or all of them may be empty.
+        The “accountType” attribute will either be “Free” (for non paying account) or “Pro” (for paying account).
+        """
+        return self._request(
+            url=self._build_url("getaccountinfo"), data=self.data, check_success=True
+        )
+
+    def getewons(self):
+        """
+        Returns the list of Ewons the set of Ewons visible by user.
+
+        Returns displayable names, link names, status, description, the 3 custom attributes, preferred m2web server hostname (currently always m2web.talk2m.com).
+        """
+        return self._request(url=self._build_url("getewons"), data=self.data)
+
+    def getewon(self, ewonid=None, name=None):
+        """
+        Returns the configuration of the targeted Ewon as seen by the DataMailbox.
+
+        :param ewonid: ID of the Ewon as returned by the “getewons” API request.
+        :param name: Name of the Ewon as returned by the “getewons” API request.
+        """
+        if not ewonid and not name:
+            raise DataMailboxArgsError("id and name cannot be null in the same time")
+        data = {**self.data}
+        if ewonid:
+            data["id"] = ewonid
+        else:
+            data["name"] = name
+        return self._request(url=self._build_url("getewon"), data=data)

@@ -8,7 +8,12 @@ import sys
 BASE_DIRECTORY = os.path.join(os.path.dirname(__file__), "..")  # NOQA
 sys.path.insert(0, BASE_DIRECTORY)  # NOQA
 
-from pydatamailbox import DataMailbox, DataMailboxArgsError, DataMailboxBaseException
+from pydatamailbox import (
+    DataMailbox,
+    DataMailboxArgsError,
+    DataMailboxBaseException,
+    M2Web,
+)
 
 
 class Talk2mMocker(requests_mock.mock):
@@ -80,9 +85,61 @@ class Talk2mMocker(requests_mock.mock):
             },
         )
         self.post("https://data.talk2m.com/syncdata", json=syncdata)
+        self.post(
+            "https://m2web.talk2m.com/t2mapi/getaccountinfo",
+            json={
+                "accountReference": "0",
+                "accountName": "test",
+                "company": "Test",
+                "customAttributes": [
+                    "Custom Field 1",
+                    "Custom Field 2",
+                    "Custom Field 3",
+                ],
+                "pools": [{"id": 1, "name": "Device pool"}],
+                "accountType": "Free",
+                "success": True,
+            },
+        )
+        self.post(
+            "https://m2web.talk2m.com/t2mapi/getewons",
+            json={
+                "success": True,
+                "ewons": [
+                    {
+                        "id": 1,
+                        "name": "test",
+                        "encodedName": "test",
+                        "status": "online",
+                        "description": "",
+                        "customAttributes": ["", "", ""],
+                        "m2webServer": "eu1.m2web.talk2m.com",
+                        "lanDevices": [],
+                        "ewonServices": [],
+                    }
+                ],
+            },
+        )
+        self.post(
+            "https://m2web.talk2m.com/t2mapi/getewon",
+            json={
+                "ewon": {
+                    "id": 1,
+                    "name": "test",
+                    "encodedName": "test",
+                    "status": "online",
+                    "description": "",
+                    "customAttributes": ["", "", ""],
+                    "m2webServer": "eu1.m2web.talk2m.com",
+                    "lanDevices": [],
+                    "ewonServices": [],
+                },
+                "success": True,
+            },
+        )
 
 
-def test_talk2m():
+def test_datamailbox():
     client = DataMailbox(account="test", username="test", password="test", devid="test")
     print(client)
     with Talk2mMocker():
@@ -111,5 +168,35 @@ def test_talk2m():
 
     with requests_mock.mock() as mock:
         mock.post("https://data.talk2m.com/getewons", text="no json")
+        with pytest.raises(DataMailboxBaseException):
+            client.getewons()
+
+
+def test_m2web():
+    client = M2Web(account="test", username="test", password="test", devid="test")
+    print(client)
+    with Talk2mMocker():
+        assert client.getaccountinfo()
+        assert client.getewons()
+        assert client.getewon(ewonid=1)
+        assert client.getewon(name="test")
+        with pytest.raises(DataMailboxArgsError):
+            client.getewon()
+
+    with requests_mock.mock() as mock:
+        mock.post(
+            "https://m2web.talk2m.com/t2mapi/getaccountinfo",
+            json={"success": False, "message": "error", "code": 1},
+        )
+        with pytest.raises(DataMailboxBaseException):
+            client.getaccountinfo()
+
+    with requests_mock.mock() as mock:
+        mock.post("https://m2web.talk2m.com/t2mapi/getewons", status_code=502)
+        with pytest.raises(DataMailboxBaseException):
+            client.getewons()
+
+    with requests_mock.mock() as mock:
+        mock.post("https://m2web.talk2m.com/t2mapi/getewons", text="no json")
         with pytest.raises(DataMailboxBaseException):
             client.getewons()

@@ -1,8 +1,15 @@
 API Reference
 =============
 
-Client
-------
+DataMailbox
+-----------
 
-.. automodule:: pydatamailbox.client
+.. autoclass:: pydatamailbox.client.DataMailbox
+  :members:
+
+
+M2Web
+-----
+
+.. autoclass:: pydatamailbox.client.M2Web
   :members:
