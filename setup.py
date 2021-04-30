@@ -29,7 +29,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
-    description="Unoffical client for the Ewon's datamailbox web APIs",
+    description="Unofficial client for the Ewon's datamailbox web APIs",
     install_requires=requirements,
     license="MIT license",
     long_description=readme + "\n\n" + history,
@@ -42,6 +42,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/optimdata/pydatamailbox",
-    version="0.2.0",
+    version="0.2.1",
     zip_safe=False,
 )

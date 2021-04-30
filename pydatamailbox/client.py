@@ -12,10 +12,11 @@ from pydatamailbox.exceptions import (
 
 
 class EwonClient(object):
-    def __init__(self, account, username, password):
+    def __init__(self, account, username, password, timeout=None):
         self.account = account
         self.username = username
         self.password = password
+        self.timeout = timeout
         self.data = {
             "t2maccount": account,
             "t2musername": username,
@@ -34,7 +35,7 @@ class EwonClient(object):
 
     def _request(self, url, data, check_success=True):
         try:
-            response = self.session.post(url=url, data=data)
+            response = self.session.post(url=url, data=data, timeout=self.timeout)
         except requests.exceptions.ConnectionError as e:  # pragma: nocover
             raise DataMailboxConnectionError(str(e))  # pragma: nocover
         if response.status_code != 200:
@@ -62,8 +63,8 @@ class DataMailbox(EwonClient):
     This client only supports: getstatus, getewons, getewon, syncdata
     """
 
-    def __init__(self, account, username, password, devid):
-        super().__init__(account, username, password)
+    def __init__(self, account, username, password, devid, timeout=None):
+        super().__init__(account, username, password, timeout)
         self.data["t2mdevid"] = devid
         self.base_url = "https://data.talk2m.com/"
 
@@ -151,8 +152,8 @@ class M2Web(EwonClient):
     This client only supports: getaccountinfo, getewons, getewon
     """
 
-    def __init__(self, account, username, password, devid):
-        super().__init__(account, username, password)
+    def __init__(self, account, username, password, devid, timeout=None):
+        super().__init__(account, username, password, timeout)
         self.data["t2mdeveloperid"] = devid
         self.base_url = "https://m2web.talk2m.com/t2mapi/"
 
