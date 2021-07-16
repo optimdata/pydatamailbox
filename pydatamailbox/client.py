@@ -126,6 +126,39 @@ class DataMailbox(EwonClient):
             data["lastTransactionId"] = last_transaction_id
         return self._request(url=self._build_url("syncdata"), data=data)
 
+    def getdata(self, ewon_id, tag_id, from_ts, to_ts, limit=None):
+        """
+        ``getdata`` is used as a “one-shot” request to retrieve filtered data based on specific
+        criteria. It is not destined to grab historical data with the same timestamp or enormous
+        data involving the use of the moreData filter.
+
+        :param ewon_id: The ID of the single Ewon gateway for which data from DataMailbox is requested.
+        :param tag_id: ID of the single tag for which data from DataMailbox is requested.
+        :param from_ts: Timestamp after which data should be returned. No data older than this time stamp will
+be sent in ISO format.
+        :param to_ts: Timestamp before which data should be returned. No data newer than this time stamp
+will be sent in ISO format
+        :param limit: The maximum amount of historical data returned.
+            The historical data is the historical tag values but also the historical alarms. If you set the
+            limit to 4, the response will consist in 4 historical tag values and 4 historical alarms (if
+            available) for each tag of each Ewon gateway allowed bu the Talk2M token.
+            If the size of the historical data saved in the DataMailbox exceeds this limit, only the
+            oldest historical data will be returned and the result contains a moreDataAvailable value
+            indicating that more data is available on the server.
+            If limit is not used or is too high, the DataMailbox uses a limit pre-defined in the system
+            (server-side).
+        """
+        data = {
+            **self.data,
+            "ewonId": ewon_id,
+            "tagId": tag_id,
+            "from": from_ts,
+            "to": to_ts,
+        }
+        if limit:
+            data["limit"] = limit
+        return self._request(url=self._build_url("getdata"), data=data)
+
     def iterate_syncdata(self, last_transaction_id=None):
         """
         Returns an iterator on syncdata.
