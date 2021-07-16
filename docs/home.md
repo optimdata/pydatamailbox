@@ -25,4 +25,7 @@ client.getewon(name="test")
 # Iterate on all the data by chunk
 for data in client.iterate_syncdata():
     pass
+
+# get tag dat for a given period
+client.getdata(1, 1, '2021-07-15T12:30:20', '2021-07-15T12:30:33')
 ```

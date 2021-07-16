@@ -1,5 +1,9 @@
 ## History
 
+### 0.2.2
+
+- Add `getdata` method
+
 ### 0.2.1
 
 - Add global request timeout

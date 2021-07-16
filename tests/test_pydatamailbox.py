@@ -41,6 +41,28 @@ class Talk2mMocker(requests_mock.mock):
                 "moreDataAvailable": "lastTransactionId" not in request._request.body,
             }
 
+        def getdata(request, context):
+            return {
+                "ewons": [
+                    {
+                        **ewon,
+                        "tags": [
+                            {
+                                **tag,
+                                "history": [
+                                    {"date": "2021-07-15T12:30:22Z", "value": 1},
+                                    {"date": "2021-07-15T12:30:28Z", "value": 0},
+                                    {"date": "2021-07-15T12:30:29Z", "value": 1},
+                                ],
+                            }
+                        ],
+                        "lastSynchroDate": "2021-07-16T14:59:40Z",
+                        "timeZone": "Europe/Paris",
+                    }
+                ],
+                "success": True,
+            }
+
         ewon = {"id": 1, "name": "test"}
         tag = {
             "id": 1,
@@ -85,6 +107,7 @@ class Talk2mMocker(requests_mock.mock):
             },
         )
         self.post("https://data.talk2m.com/syncdata", json=syncdata)
+        self.post("https://data.talk2m.com/getdata", json=getdata)
         self.post(
             "https://m2web.talk2m.com/t2mapi/getaccountinfo",
             json={
@@ -150,6 +173,7 @@ def test_datamailbox():
         assert client.syncdata()
         assert client.syncdata(last_transaction_id=1)
         assert list(client.iterate_syncdata())
+        assert client.getdata(1, 1, "2021-07-15T12:30:20", "2021-07-15T12:30:33")
         with pytest.raises(DataMailboxArgsError):
             client.getewon()
 
