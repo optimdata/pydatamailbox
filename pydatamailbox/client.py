@@ -57,10 +57,8 @@ class EwonClient(object):
 
 class DataMailbox(EwonClient):
     """
-    Talk2M DataMailbox api client.
-
-    https://developer.ewon.biz/content/dmweb-api
-    This client only supports: getstatus, getewons, getewon, syncdata
+    Talk2M `DataMailbox api client <https://developer.ewon.biz/content/dmweb-api>`_.
+    This client only supports: getstatus, getewons, getewon, syncdata, getdata
     """
 
     def __init__(self, account, username, password, devid, timeout=None):
@@ -115,15 +113,28 @@ class DataMailbox(EwonClient):
             data["name"] = name
         return self._request(url=self._build_url("getewon"), data=data)
 
-    def syncdata(self, last_transaction_id=None):
+    def syncdata(
+        self, last_transaction_id=None, create_transaction=True, ewon_ids=None
+    ):
         """
         Retrieves all data of a Talk2M account incrementally.
+        You must be cautious when using the combination of last_transaction_dd, create_transaction and ewon_ids.
+        last_transaction_dd is first used to determine what set of data — newer than this transaction ID and from all
+        the Ewon gateways — must be returned from the DataMailbox, then ewon_dds filters this set of data to send data
+        only from the desired Ewon gateways.
+        If a first request is called with last_transaction_dd, create_transaction and ewon_ids, the following request
+        — implying a new last_transaction_id — does not contain values history from the previous last_transaction_id
+        of the Ewon gateways that were not in the ewonIds from previous request.
 
-        :param last_transaction_id: The ID of the last set of data sent by the DataMailbox. By referencing the “lastTransactionId”, the DataMailbox will send a set of data more recent than the data linked to this transaction ID.
+        :param int last_transaction_id: The ID of the last set of data sent by the DataMailbox. By referencing the “lastTransactionId”, the DataMailbox will send a set of data more recent than the data linked to this transaction ID.
+        :param bool create_transaction: The indication to the server that a new transaction ID should be created for this request.
+        :param list ewon_ids: A list of Ewon gateway IDs. If ewonIds is used, DataMailbox sends values history of the targeted Ewon gateways. If not used, DataMailbox sends the values history of all Ewon gateways.
         """
-        data = {**self.data, "createTransaction": 1}
+        data = {**self.data, "createTransaction": create_transaction}
         if last_transaction_id:
             data["lastTransactionId"] = last_transaction_id
+        if ewon_ids:
+            data["ewonIds"] = ",".join([str(ewon_id) for ewon_id in ewon_ids])
         return self._request(url=self._build_url("syncdata"), data=data)
 
     def getdata(self, ewon_id, tag_id, from_ts, to_ts, limit=None):
@@ -132,21 +143,11 @@ class DataMailbox(EwonClient):
         criteria. It is not destined to grab historical data with the same timestamp or enormous
         data involving the use of the moreData filter.
 
-        :param ewon_id: The ID of the single Ewon gateway for which data from DataMailbox is requested.
-        :param tag_id: ID of the single tag for which data from DataMailbox is requested.
-        :param from_ts: Timestamp after which data should be returned. No data older than this time stamp will
-be sent in ISO format.
-        :param to_ts: Timestamp before which data should be returned. No data newer than this time stamp
-will be sent in ISO format
-        :param limit: The maximum amount of historical data returned.
-            The historical data is the historical tag values but also the historical alarms. If you set the
-            limit to 4, the response will consist in 4 historical tag values and 4 historical alarms (if
-            available) for each tag of each Ewon gateway allowed bu the Talk2M token.
-            If the size of the historical data saved in the DataMailbox exceeds this limit, only the
-            oldest historical data will be returned and the result contains a moreDataAvailable value
-            indicating that more data is available on the server.
-            If limit is not used or is too high, the DataMailbox uses a limit pre-defined in the system
-            (server-side).
+        :param int ewon_id: The ID of the single Ewon gateway for which data from DataMailbox is requested.
+        :param int tag_id: ID of the single tag for which data from DataMailbox is requested.
+        :param str from_ts: Timestamp after which data should be returned. No data older than this time stamp will be sent in ISO format.
+        :param str to_ts: Timestamp before which data should be returned. No data newer than this time stamp will be sent in ISO format
+        :param int limit: The maximum amount of historical data returned. The historical data is the historical tag values but also the historical alarms. If you set the limit to 4, the response will consist in 4 historical tag values and 4 historical alarms (if available) for each tag of each Ewon gateway allowed bu the Talk2M token. If the size of the historical data saved in the DataMailbox exceeds this limit, only the oldest historical data will be returned and the result contains a moreDataAvailable value indicating that more data is available on the server. If limit is not used or is too high, the DataMailbox uses a limit pre-defined in the system (server-side).
         """
         data = {
             **self.data,
@@ -179,9 +180,8 @@ will be sent in ISO format
 
 class M2Web(EwonClient):
     """
-    Talk2M M2Web api client.
+    Talk2M `M2Web api client <https://developer.ewon.biz/content/m2web-api-0>`_.
 
-    https://developer.ewon.biz/content/m2web-api-0
     This client only supports: getaccountinfo, getewons, getewon
     """
 
