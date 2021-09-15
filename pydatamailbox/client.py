@@ -118,15 +118,15 @@ class DataMailbox(EwonClient):
     ):
         """
         Retrieves all data of a Talk2M account incrementally.
-        You must be cautious when using the combination of last_transaction_dd, create_transaction and ewon_ids.
-        last_transaction_dd is first used to determine what set of data — newer than this transaction ID and from all
+        You must be cautious when using the combination of `last_transaction_id`, `create_transaction` and `ewon_ids`.
+        last_transaction_dd is first used to determine what set of data — newer than this transaction id and from all
         the Ewon gateways — must be returned from the DataMailbox, then ewon_dds filters this set of data to send data
         only from the desired Ewon gateways.
-        If a first request is called with last_transaction_dd, create_transaction and ewon_ids, the following request
-        — implying a new last_transaction_id — does not contain values history from the previous last_transaction_id
-        of the Ewon gateways that were not in the ewonIds from previous request.
+        If a first request is called with `last_transaction_id`, `create_transaction` and `ewon_ids`, the following request
+        — implying a new `last_transaction_id` — does not contain values history from the previous `last_transaction_id`
+        of the Ewon gateways that were not in the `ewon_ids` from previous request.
 
-        :param int last_transaction_id: The ID of the last set of data sent by the DataMailbox. By referencing the “lastTransactionId”, the DataMailbox will send a set of data more recent than the data linked to this transaction ID.
+        :param int last_transaction_id: The id of the last set of data sent by the DataMailbox. By referencing the `last_transaction_id`, the DataMailbox will send a set of data more recent than the data linked to this transaction ID.
         :param bool create_transaction: The indication to the server that a new transaction ID should be created for this request.
         :param list ewon_ids: A list of Ewon gateway IDs. If ewonIds is used, DataMailbox sends values history of the targeted Ewon gateways. If not used, DataMailbox sends the values history of all Ewon gateways.
         """
@@ -160,7 +160,7 @@ class DataMailbox(EwonClient):
             data["limit"] = limit
         return self._request(url=self._build_url("getdata"), data=data)
 
-    def iterate_syncdata(self, last_transaction_id=None):
+    def iterate_syncdata(self, last_transaction_id=None, ewon_ids=None):
         """
         Returns an iterator on syncdata.
 
@@ -169,9 +169,10 @@ class DataMailbox(EwonClient):
         This helper will act as an iterator and yield an api response until there are no more data.
 
         :param last_transaction_id: The ID of the last set of data sent by the DataMailbox. By referencing the “lastTransactionId”, the DataMailbox will send a set of data more recent than the data linked to this transaction ID.
+        :param list ewon_ids: A list of Ewon gateway IDs. If ewonIds is used, DataMailbox sends values history of the targeted Ewon gateways. If not used, DataMailbox sends the values history of all Ewon gateways.
         """
         while True:
-            ret = self.syncdata(last_transaction_id)
+            ret = self.syncdata(last_transaction_id, ewon_ids=ewon_ids)
             yield ret
             if not ret.get("moreDataAvailable"):
                 break

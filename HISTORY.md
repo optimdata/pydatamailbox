@@ -1,5 +1,9 @@
 ## History
 
+### next release
+
+- Add `ewonIds` filter on `syncdata`
+
 ### 0.2.2
 
 - Add `getdata` method
