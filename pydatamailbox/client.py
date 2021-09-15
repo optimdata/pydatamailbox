@@ -160,7 +160,7 @@ class DataMailbox(EwonClient):
             data["limit"] = limit
         return self._request(url=self._build_url("getdata"), data=data)
 
-    def iterate_syncdata(self, last_transaction_id=None):
+    def iterate_syncdata(self, last_transaction_id=None, ewon_ids=None):
         """
         Returns an iterator on syncdata.
 
@@ -169,9 +169,10 @@ class DataMailbox(EwonClient):
         This helper will act as an iterator and yield an api response until there are no more data.
 
         :param last_transaction_id: The ID of the last set of data sent by the DataMailbox. By referencing the “lastTransactionId”, the DataMailbox will send a set of data more recent than the data linked to this transaction ID.
+        :param list ewon_ids: A list of Ewon gateway IDs. If ewonIds is used, DataMailbox sends values history of the targeted Ewon gateways. If not used, DataMailbox sends the values history of all Ewon gateways.
         """
         while True:
-            ret = self.syncdata(last_transaction_id)
+            ret = self.syncdata(last_transaction_id, ewon_ids=ewon_ids)
             yield ret
             if not ret.get("moreDataAvailable"):
                 break
