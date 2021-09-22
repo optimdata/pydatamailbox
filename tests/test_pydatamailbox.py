@@ -172,6 +172,10 @@ def test_datamailbox():
         assert client.getewon(name="test")
         assert client.syncdata()
         assert client.syncdata(last_transaction_id=1)
+        assert client.syncdata(
+            create_transaction=False, last_transaction_id=1, ewon_ids=[1, 2, 3]
+        )
+
         assert list(client.iterate_syncdata())
         assert client.getdata(1, 1, "2021-07-15T12:30:20", "2021-07-15T12:30:33")
         with pytest.raises(DataMailboxArgsError):
