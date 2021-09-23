@@ -214,6 +214,7 @@ class M2Web(EwonClient):
     def getewons(self, pool=None):
         """
         Returns the set of Ewons visible by user along with their properties: displayable names, link names, status, description, the 3 custom attributes, preferred m2web server hostname (currently always m2web.talk2m.com).
+
         :param int pool: `pool` is the optional numerical id of the pool from which the Ewons should be retrieved. Pool id's are retrieved using a `getaccountinfo` call. If `pool` is not specified, all visible Ewons are listed in the response.
         """
         data = {**self.data}
