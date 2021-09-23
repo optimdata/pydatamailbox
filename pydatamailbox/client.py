@@ -10,18 +10,18 @@ from pydatamailbox.exceptions import (
     DataMailboxStatusError,
 )
 
+__all__ = (
+    "DataMailbox",
+    "M2Web",
+)
+
 
 class EwonClient(object):
-    def __init__(self, account, username, password, timeout=None):
+    def __init__(self, base_url, account, data=None, timeout=None):
         self.account = account
-        self.username = username
-        self.password = password
         self.timeout = timeout
-        self.data = {
-            "t2maccount": account,
-            "t2musername": username,
-            "t2mpassword": password,
-        }
+        self.data = data
+        self.base_url = base_url
         self.session = requests.Session()
         self.session.headers.update(
             {"Content-Type": "application/x-www-form-urlencoded"}
@@ -59,12 +59,21 @@ class DataMailbox(EwonClient):
     """
     Talk2M `DataMailbox api client <https://developer.ewon.biz/content/dmweb-api>`_.
     This client only supports: getstatus, getewons, getewon, syncdata, getdata
+
+    The authentication is done by providing either `username` and `password` or `token`.
     """
 
-    def __init__(self, account, username, password, devid, timeout=None):
-        super().__init__(account, username, password, timeout)
-        self.data["t2mdevid"] = devid
-        self.base_url = "https://data.talk2m.com/"
+    def __init__(self, account, devid, timeout=None, **kwargs):
+        data = {
+            "t2mdevid": devid,
+        }
+        if "token" in kwargs:
+            data["t2mtoken"] = kwargs["token"]
+        else:
+            data["t2maccount"] = account
+            data["t2musername"] = kwargs["username"]
+            data["t2mpassword"] = kwargs["password"]
+        super().__init__("https://data.talk2m.com/", account, data, timeout)
 
     def getstatus(self):
         """
@@ -187,9 +196,13 @@ class M2Web(EwonClient):
     """
 
     def __init__(self, account, username, password, devid, timeout=None):
-        super().__init__(account, username, password, timeout)
-        self.data["t2mdeveloperid"] = devid
-        self.base_url = "https://m2web.talk2m.com/t2mapi/"
+        data = {
+            "t2maccount": account,
+            "t2musername": username,
+            "t2mpassword": password,
+            "t2mdeveloperid": devid,
+        }
+        super().__init__("https://m2web.talk2m.com/t2mapi/", account, data, timeout)
 
     def getaccountinfo(self):
         """
