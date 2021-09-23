@@ -1,8 +1,9 @@
 ## History
 
-### next release
+### 0.2.3
 
 - Add `ewonIds` filter on `syncdata`
+- Add authentication with token form t2m
 
 ### 0.2.2
 
