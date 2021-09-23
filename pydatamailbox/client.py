@@ -10,10 +10,7 @@ from pydatamailbox.exceptions import (
     DataMailboxStatusError,
 )
 
-__all__ = (
-    "DataMailbox",
-    "M2Web",
-)
+__all__ = ("DataMailbox", "M2Web")
 
 
 class EwonClient(object):
@@ -64,9 +61,7 @@ class DataMailbox(EwonClient):
     """
 
     def __init__(self, account, devid, timeout=None, **kwargs):
-        data = {
-            "t2mdevid": devid,
-        }
+        data = {"t2mdevid": devid}
         if "token" in kwargs:
             data["t2mtoken"] = kwargs["token"]
         else:
